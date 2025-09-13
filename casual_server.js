@@ -315,5 +315,21 @@ Provide a brief, casual analysis of the player's performance in plain text, thou
   }
 });
 
+
+
+
+
+
+
+
+
+app.get("/", (req, res) => {
+  res.send("Casual backend is live 🚀");
+});
+
+
+
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Casual server running at http://localhost:${PORT}`));
+
