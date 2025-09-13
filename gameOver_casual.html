@@ -37,9 +37,52 @@
       color: #444;
       white-space: pre-line; /* keeps AI line breaks */
     }
+
+    /* Full page loading overlay */
+    #loading {
+      display: none; /* hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #4caf50;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    #loading p {
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: bold;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
+  <!-- Loading Overlay -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Analyzing performance... Please wait</p>
+  </div>
+
   <h1>Game Over</h1>
   <h2>Your Run Has Ended</h2>
   <div id="finalBudget"></div>
@@ -98,6 +141,9 @@
     // Prepare data for AI
     const logSummary = JSON.stringify(activityLog.slice(-100));
 
+    // Show loading overlay
+    document.getElementById("loading").style.display = "flex";
+
     try {
       const res = await fetch("/analyzePerformance", {
         method: "POST",
@@ -107,16 +153,16 @@
 
       if (!res.ok) {
         document.getElementById("analysis-text").textContent = "Failed to analyze performance.";
-        document.getElementById("analysis-box").style.display = "block";
-        return;
+      } else {
+        const data = await res.json();
+        document.getElementById("analysis-text").textContent = data.analysis;
       }
-
-      const data = await res.json();
-      document.getElementById("analysis-text").textContent = data.analysis;
-      document.getElementById("analysis-box").style.display = "block";
     } catch (err) {
       console.error(err);
       document.getElementById("analysis-text").textContent = "Error analyzing performance.";
+    } finally {
+      // Hide loading, show analysis
+      document.getElementById("loading").style.display = "none";
       document.getElementById("analysis-box").style.display = "block";
     }
   }
